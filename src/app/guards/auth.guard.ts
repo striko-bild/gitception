@@ -11,7 +11,8 @@ export class AuthGuard implements CanActivate {
 
   canActivate(): boolean {
 
-    if (!this.authService.isAuthenticated()) {
+    // If no token is found in the local storage, redirects to Github login
+    if (!this.authService.getToken()) {
       this.router.navigate(['/login']);
       return false;
     }

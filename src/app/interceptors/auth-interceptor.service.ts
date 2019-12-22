@@ -12,11 +12,11 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (this.authService.isAuthenticated()) {
-      console.log('authenticated');
+    const token = this.authService.getToken();
+    if (token) {
       request = request.clone({
         setHeaders: {
-          Authorization: `token ${this.authService.tokenObject.accessToken}`
+          Authorization: `token ${token}`
         }
       });
     }

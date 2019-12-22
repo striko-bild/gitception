@@ -10,7 +10,6 @@ import { AccessToken } from './interfaces/access-token';
 export class AuthService {
 
   private readonly clientId = '5a4442d08297067abfef';
-  tokenObject: AccessToken;
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private httpClient: HttpClient,
@@ -26,7 +25,7 @@ export class AuthService {
   }
 
   logout(): void {
-    this.tokenObject = undefined;
+    localStorage.set('accessToken', undefined);
     this.router.navigate(['/login']);
   }
 
@@ -36,14 +35,17 @@ export class AuthService {
   handleAuthCallback(code: string): void {
     const result = this.httpClient.post<AccessToken>('http://localhost:3000/github/auth', { code });
     result.subscribe((tokenData) => {
-      this.tokenObject = tokenData;
-      console.log('accessToken', this.tokenObject);
+      localStorage.setItem('accessToken', tokenData.accessToken);
       this.router.navigate(['/commits']);
     });
   }
 
-  isAuthenticated(): boolean {
-    return this.tokenObject !== undefined;
+  getToken(): string | undefined {
+    const token = localStorage.getItem('accessToken');
+    if (!token || token === 'null' || token === 'undefined') {
+      return undefined;
+    }
+    return token;
   }
 
 }
