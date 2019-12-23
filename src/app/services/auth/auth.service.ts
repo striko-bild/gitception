@@ -3,17 +3,18 @@ import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AccessToken } from './interfaces/access-token';
+import { ConfigService } from '../config/config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  private readonly clientId = '5a4442d08297067abfef';
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private httpClient: HttpClient,
     private router: Router,
+    private config: ConfigService
   ) { }
 
   /*
@@ -21,7 +22,7 @@ export class AuthService {
   * /callback endpoint with code in params. Code is then used to get the access token.
   */
   redirectToLogin(): void {
-    this.document.location.href = `https://github.com/login/oauth/authorize?client_id=${this.clientId}`;
+    this.document.location.href = this.config.getGithubLoginUrl();
   }
 
   logout(): void {
@@ -33,7 +34,7 @@ export class AuthService {
   * BE fetches an access token, based on the code provided, to be used in further API calls.
   */
   handleAuthCallback(code: string): void {
-    const result = this.httpClient.post<AccessToken>('http://localhost:3000/github/auth', { code });
+    const result = this.httpClient.post<AccessToken>(`${this.config.getServerUrl()}/github/auth`, { code });
     result.subscribe((tokenData) => {
       localStorage.setItem('accessToken', tokenData.accessToken);
       this.router.navigate(['/commits']);
